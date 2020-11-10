@@ -1,3 +1,6 @@
+import 'dart:collection';
+import 'dart:svg';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:jose/jose.dart';
 import 'package:web3dart/web3dart.dart';
@@ -5,49 +8,79 @@ import 'package:pointycastle/pointycastle.dart';
 import 'package:cryptography/cryptography.dart';
 
 class WalletOptions {
-    @IsString()
-    @IsDefined()
-    password: string;
-
-    @IsOptional()
-    @IsString()
-    mnemonic?: string;
+    String password;
+    String mnemonic;
 }
 
 
-interface KeystoreDbModel {
-    _id: any;
-    keypairs: KeyStoreModel;
-    keystoreSeed: any;
-    mnemonic: string;
-    keypairExports: KeyStoreModel;
-    publicKeys?: any;
+class KeystoreDbModel {
+    Number _id;
+    HashMap keyStoreModel;
+    String keystoreSeed;
+    String mnemonic;
+    HashMap keypairExports;
+    HashMap publicKeys;
 }
 
-interface KeyStoreModel {
-    BLS?: any,
-    ES256K: any;
-    P256: any;
-    RSA: any;
-    ED25519: any;
-    Filecoin: any;
-    Vechain?: any;
-    Polkadot?: any;
+
+var KeyStoreModel = {
+    'BLS': {},
+    'ES256K': {},
+    'P256': {},
+    'RSA': {},
+    'ED25519': {},
+    'Filecoin': {},
+    'Vechain': {},
+    'Polkadot': {}
 }
 
-class KeyStore implements KeyStoreModel {
-    ED25519: any;
-    ES256K: any;
-    P256: any;
-    RSA: any;
-    BLS: any;
-    Filecoin: any;
-    Vechain: any;
-    Polkadot: any;
-    constructor(
-    ) {
+abstract class KeyStore {
+  set() {return 0;}
+  remove()  {return 0;}
+  find()  {return 0;} 
+  void lock();
+  void enable();
+}
 
-    }
+
+mixin AndroidKeyStore implements KeyStore, HDWallet {
+}
+
+mixin SigningKeypairTypes implements List {
+}
+
+
+class WalletKeyStore implements KeyStore{
+  @override
+  enable() {
+    // TODO: implement enable
+    throw UnimplementedError();
+  }
+
+  @override
+  find() {
+    // TODO: implement find
+    throw UnimplementedError();
+  }
+
+  @override
+  lock() {
+    // TODO: implement lock
+    throw UnimplementedError();
+  }
+
+  @override
+  remove() {
+    // TODO: implement remove
+    throw UnimplementedError();
+  }
+
+  @override
+  set() {
+    // TODO: implement set
+    throw UnimplementedError();
+  }
+
 }
 
 type FilecoinSignTypes = 'filecoin' | 'lotus';
