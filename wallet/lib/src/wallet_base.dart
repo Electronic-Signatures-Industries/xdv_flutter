@@ -1,11 +1,11 @@
 import 'dart:collection';
 import 'dart:svg';
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:jose/jose.dart';
-import 'package:web3dart/web3dart.dart';
-import 'package:pointycastle/pointycastle.dart';
-import 'package:cryptography/cryptography.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // keystore - pouchdb
+import 'package:jose/jose.dart';                      // jwt
+import 'package:web3dart/web3dart.dart';            // hdwallet
+import 'package:pointycastle/pointycastle.dart';  // crypto
+import 'package:cryptography/cryptography.dart';  //crypto
 
 class WalletOptions {
     String password;
@@ -148,9 +148,10 @@ class Wallet {
         // });
     }
 
-    create(password: string, mnemonic?: string) {
+    create(String password, String mnemonic) {
         // const id = Buffer.from(ethers.utils.randomBytes(100)).toString('base64');
 
+       
         // if (mnemonic) {
         //     this.ethersWallet = ethers.Wallet.fromMnemonic(mnemonic);
         // } else {
