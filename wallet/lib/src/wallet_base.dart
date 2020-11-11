@@ -4,6 +4,7 @@ import 'dart:svg';
 
 import 'package:sembast/sembast.dart'; // keystore - pouchdb
 import 'package:jose/jose.dart';                      // jwt
+import 'package:wallet/src/keystore_item.dart';
 import 'package:wallet_core/wallet_core.dart';            // hdwallet
 // import 'package:pointycastle/pointycastle.dart';  // crypto
 import 'package:cryptography/cryptography.dart' as crypto_keys;  //crypto
@@ -183,20 +184,20 @@ class Wallet {
           );
         }
 
-        var keystore =  Keystore()
-
-        // Filecoin
-        let keyFil = this.getFilecoinDeriveChild();
-        keystores.Filecoin = keyFil;
+        var keystore =  KeyStore();
+        keystore.load();
 
         // ED25519
         let kp = this.getEd25519();
-        keystores.ED25519 = kp.getSecret('hex');
-        keyExports.ED25519 = await KeyConvert.getEd25519(kp);
-        keyExports.ED25519.ldJsonPublic = await KeyConvert.createLinkedDataJsonFormat(
-            LDCryptoTypes.Ed25519,
-            kp,
-            false);
+        keystore.setKeyPair('ed25519', KeystoreItem(
+          
+        ));
+        // keystores.ED25519 = kp.getSecret('hex');
+        // keyExports.ED25519 = await KeyConvert.getEd25519(kp);
+        // keyExports.ED25519.ldJsonPublic = await KeyConvert.createLinkedDataJsonFormat(
+        //     LDCryptoTypes.Ed25519,
+        //     kp,
+        //     false);
 
 
         // ES256K
