@@ -6,8 +6,12 @@ class KeyStore {
   Database database;
 
   var DEFAULT_KEYSTORE_ITEMS = [
-    {name: '', algorithm: '', value: KeystoreItem()}
-  ];
+    {'sepc256k1': KeystoreItem()},
+    {'sepc256r1': KeystoreItem()},
+    {'ed25519': KeystoreItem()},
+    {'rsa1024': KeystoreItem()},
+    {'rsa2048': KeystoreItem()},
+  ] as List<Map<String, KeystoreItem>>;
 
   constructor(Database db) {
     database = db;
@@ -17,6 +21,7 @@ class KeyStore {
     // pre load default keystore items
     var store = intMapStoreFactory.store();
     for (var item in DEFAULT_KEYSTORE_ITEMS) {
+      item
       var key = await store.add(database, item);
     }
   }
