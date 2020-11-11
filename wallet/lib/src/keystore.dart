@@ -21,8 +21,7 @@ class KeyStore {
     // pre load default keystore items
     var store = intMapStoreFactory.store();
     for (var item in DEFAULT_KEYSTORE_ITEMS) {
-      item
-      var key = await store.add(database, item);
+      await store.add(database, item);
     }
   }
 }
