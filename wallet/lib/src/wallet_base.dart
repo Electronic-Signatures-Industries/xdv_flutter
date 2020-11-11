@@ -1,16 +1,17 @@
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:svg';
 
 import 'package:sembast/sembast.dart'; // keystore - pouchdb
 import 'package:jose/jose.dart';                      // jwt
 import 'package:wallet_core/wallet_core.dart';            // hdwallet
-import 'package:pointycastle/pointycastle.dart';  // crypto
-import 'package:cryptography/cryptography.dart';  //crypto
+// import 'package:pointycastle/pointycastle.dart';  // crypto
+import 'package:cryptography/cryptography.dart' as crypto_keys;  //crypto
 import 'package:bitcoin_flutter/bitcoin_flutter.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sembast/sembast_io.dart';
+import 'package:x509/x509.dart';
 
 class WalletOptions {
     String password;
@@ -445,49 +446,47 @@ class Wallet {
         return node;
     }
 
-    getFilecoinDeriveChild(): ethers.HDNode {
-        return this.deriveFromPath(`m/44'/461'/0/0/1`);
-    }
+    // getFilecoinDeriveChild(): ethers.HDNode {
+    //     return this.deriveFromPath(`m/44'/461'/0/0/1`);
+    // }
 
     /**
      * Gets EdDSA key pair
      */
-    getEd25519(): eddsa.KeyPair {
-        const ed25519 = new eddsa('ed25519');
-       // createEd25519()
-        // const hdkey = HDKey.fromExtendedKey(HDNode.fromMnemonic(this.mnemonic).extendedKey);
-        const { key } = getMasterKeyFromSeed(ethers.utils.HDNode.mnemonicToSeed(this.mnemonic));
-        const keypair = ed25519.keyFromSecret(key);
-        return keypair;
+    Future<dynamic> getEd25519() async {
+      // TODO: https://pub.dev/packages/ed25519_hd_key
+      var seed = bip39.mnemonicToSeed(mnemonic);
+      var kp = await ed25519.newKeyPairFromSeed(PrivateKey(seed));
+      return kp;
     }
 
 
-    getP256(): ec.KeyPair {
-        const p256 = new ec('p256');
-        const keypair = p256.keyFromPrivate(HDNode.fromMnemonic(this.mnemonic).privateKey);
-        return keypair;
+    // getP256(): ec.KeyPair {
+    //     const p256 = new ec('p256');
+    //     const keypair = p256.keyFromPrivate(HDNode.fromMnemonic(this.mnemonic).privateKey);
+    //     return keypair;
+    // }
+
+   ECPair getES256K() {
+      var seed = bip39.mnemonicToSeed(mnemonic);
+      var kp =  ECPair.fromPrivateKey(Utf8Encoder().convert(HDWallet.fromSeed(seed).privKey));
+      return kp;
     }
 
-    getES256K(): ec.KeyPair {
-        const ES256k = new ec('secp256k1');
-        const keypair = ES256k.keyFromPrivate(HDNode.fromMnemonic(this.mnemonic).privateKey);
-        return keypair;
-    }
-
-    getBlsMasterKey(): any {
-        const masterKey = deriveKeyFromMnemonic(this.mnemonic)
-        return {
-            deriveValidatorKeys: (id: number) => deriveEth2ValidatorKeys(masterKey, id)
-        };
-    }
+    // getBlsMasterKey(): any {
+    //     const masterKey = deriveKeyFromMnemonic(this.mnemonic)
+    //     return {
+    //         deriveValidatorKeys: (id: number) => deriveEth2ValidatorKeys(masterKey, id)
+    //     };
+    // }
 
 
-    static getRSA256Standalone(len: number = 2048): Promise<JWK.RSAKey> {
-        return JWK.createKey('RSA', len, {
-            alg: 'RS256',
-            use: 'sig'
-        });
-    }
+    // static getRSA256Standalone(len: number = 2048): Promise<JWK.RSAKey> {
+    //     return JWK.createKey('RSA', len, {
+    //         alg: 'RS256',
+    //         use: 'sig'
+    //     });
+    // }
 
 
 }
