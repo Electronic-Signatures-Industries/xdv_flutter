@@ -6,10 +6,14 @@ class KeyStore {
   Database database;
 
   var DEFAULT_KEYSTORE_ITEMS = [
-    {name: '', algorithm: '', value: KeystoreItem()}
-  ];
+    {'sepc256k1': {} as dynamic},
+    {'sepc256r1': {} as dynamic},
+    {'ed25519': {} as dynamic},
+    {'rsa1024': {} as dynamic},
+    {'rsa2048': {} as dynamic},
+  ] as List<Map<String, KeystoreItem>>;
 
-  constructor(Database db) {
+  set constructor(Database db) {
     database = db;
   }
 
@@ -17,7 +21,23 @@ class KeyStore {
     // pre load default keystore items
     var store = intMapStoreFactory.store();
     for (var item in DEFAULT_KEYSTORE_ITEMS) {
-      var key = await store.add(database, item);
+      await store.add(database, item);
     }
   }
+
+  setKeyPair(String key, KeystoreItem kp) {
+    var store = intMapStoreFactory.store();
+    var key_item = store.record(key);
+
+    key_item.update(database, kp);
+  }
+
+  // TODO
+  // finder
+  // getter
+  // setter
+  // remove
+
+  // NODE MODULES WITH DART FEATURES
+  // JWK -> PEM y viceversa
 }

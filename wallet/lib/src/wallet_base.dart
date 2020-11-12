@@ -1,17 +1,19 @@
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:svg';
 
 import 'dart:convert';
 import 'package:sembast/sembast.dart'; // keystore - pouchdb
 import 'package:jose/jose.dart';                      // jwt
+import 'package:wallet/src/keystore_item.dart';
 import 'package:wallet_core/wallet_core.dart';            // hdwallet
-import 'package:pointycastle/pointycastle.dart';  // crypto
-import 'package:cryptography/cryptography.dart';  //crypto
+// import 'package:pointycastle/pointycastle.dart';  // crypto
+import 'package:cryptography/cryptography.dart' as crypto_keys;  //crypto
 import 'package:bitcoin_flutter/bitcoin_flutter.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sembast/sembast_io.dart';
+import 'package:x509/x509.dart';
 
 class WalletOptions {
     String password;
@@ -113,8 +115,18 @@ class Wallet {
     // ethersWallet: any;
     // accepted: any;
     Wallet() {
+      dbCreate();
+    }
+
+    void dbCreate() async{
+
       // File path to a file in the current directory
       dbPath = 'xdv_wallet.db';
+      var dbFactory = databaseFactoryIo;
+
+      // We use the database factory to open the database
+      db = await dbFactory.openDatabase(dbPath);
+
     }
 
     load() async {
@@ -184,26 +196,23 @@ class Wallet {
             strength: 128
           );
         }
-             // const ks: KeystoreDb5\Model = await this.db.get(this.id);
 
-
-        var keystore =  Keystore();
+        var keystore =  KeyStore();
         keystore.load();
 
-
-
-        // Filecoin
-        let keyFil = this.getFilecoinDeriveChild();
-        keystores.Filecoin = keyFil;
-
         // ED25519
-        let kp = this.getEd25519();
-        keystores.ED25519 = kp.getSecret('hex');
-        keyExports.ED25519 = await KeyConvert.getEd25519(kp);
-        keyExports.ED25519.ldJsonPublic = await KeyConvert.createLinkedDataJsonFormat(
-            LDCryptoTypes.Ed25519,
-            kp,
-            false);
+        var kp = this.getEd25519();
+        
+        
+        keystore.setKeyPair('ed25519', KeystoreItem(
+          
+        ));
+        // keystores.ED25519 = kp.getSecret('hex');
+        // keyExports.ED25519 = await KeyConvert.getEd25519(kp);
+        // keyExports.ED25519.ldJsonPublic = await KeyConvert.createLinkedDataJsonFormat(
+        //     LDCryptoTypes.Ed25519,
+        //     kp,
+        //     false);
 
 
         // ES256K
@@ -265,7 +274,6 @@ class Wallet {
         // }
 
     }
-        
     getPrivateKeyExports(AlgorithmTypeString algorithm) {
         // const ks: KeystoreDbModel = await this.db.get(this.id);
         // return ks.keypairExports[algorithm];
@@ -285,7 +293,6 @@ class Wallet {
         //     }, 1000);
         // });
     }
-
 
     ///
     // Signs with selected algorithm
@@ -307,101 +314,7 @@ class Wallet {
         // return [new Error('invalid_passphrase')]
     }
 
-    ///
-    // Signs a JWT for single recipient
-    // @param algorithm Algorithm
-    // @param payload Payload as buffer
-    // @param options options
-    ///
-    Future<Object> signJWT(AlgorithmTypeString algorithm, Object payload, Object options){
-
-        // this.onRequestPassphraseSubscriber.next({ type: 'request_tx', payload, algorithm });
-
-        // const canUseIt = await this.canUse();
-
-
-        // if (canUseIt) {
-        //     const { pem } = await this.getPrivateKeyExports(algorithm);
-        //     return [null, await JWTService.sign(pem, payload, options)];
-        // }
-        // return [new Error('invalid_passphrase')]
-
-    }
-
-    Future<Object> signJWTFromPublic(Object publicKey, Object payload, Object options){
-
-        // this.onRequestPassphraseSubscriber.next({ type: 'request_tx', payload });
-
-        // const canUseIt = await this.canUse();
-
-
-        // if (canUseIt) {
-        //     return [null, JWTService.sign(publicKey, payload, options)];
-        // }
-
-        // return [new Error('invalid_passphrase')]
-    }
-
-    ///
-    // Encrypts JWE
-    // @param algorithm Algorithm 
-    // @param payload Payload as buffer
-    // @param overrideWithKey Uses this key instead of current wallet key
-    // 
-    ///
-    Future<Object> encryptJWE(AlgorithmTypeString algorithm, Object payload,Object  overrideWithKey) {
-
-        // this.onRequestPassphraseSubscriber.next({ type: 'request_tx', payload, algorithm });
-
-        // const canUseIt = await this.canUse();
-
-
-        // if (canUseIt) {
-        //     let jwk;
-        //     if (overrideWithKey === null) {
-        //         const keys = await this.getPrivateKeyExports(algorithm);
-        //         jwk = keys.jwk;
-        //     }
-        //     return [null, await JOSEService.encrypt([jwk], payload)];
-        // }
-        // return [new Error('invalid_passphrase')]
-
-    }
-
-    Future<Object> decryptJWE(AlgorithmTypeString algorithm, Object payload) {
-
-        // this.onRequestPassphraseSubscriber.next({ type: 'request_tx', payload, algorithm });
-
-        // const canUseIt = await this.canUse();
-
-
-        // if (canUseIt) {
-        //     const { jwk } = await this.getPrivateKeyExports(algorithm);
-
-        //     return [null, await JWE.createDecrypt(
-        //         await JWK.asKey(jwk, 'jwk')
-        //     ).decrypt(payload)];
-        // }
-        // return [new Error('invalid_passphrase')]
-    }
-    ///
-    // Encrypts JWE with multiple keys
-    // @param algorithm 
-    // @param payload 
-    ///
-    Future<Object> encryptMultipleJWE(List<Object> keys,  AlgorithmTypeString algorithm, Object payload){
-
-        this.onRequestPassphraseSubscriber.next({ type: 'request_tx', payload, algorithm });
-
-        const canUseIt = await this.canUse();
-
-
-        if (canUseIt) {
-            const { jwk } = await this.getPrivateKeyExports(algorithm);
-            return [null, await JOSEService.encrypt([jwk, ...keys], payload)];
-        }
-        return [new Error('invalid_passphrase')]
-    }
+    
     ///
     //Generates a mnemonic
     //
@@ -429,7 +342,6 @@ class Wallet {
         });
     }
 
-
     ///
     //Derives a new child Wallet
     ///
@@ -453,57 +365,47 @@ class Wallet {
         return node;
     }
 
-    ethers.HDNode getFilecoinDeriveChild() {
-        return this.deriveFromPath(`m/44'/461'/0/0/1`);
-    }
+    // getFilecoinDeriveChild(): ethers.HDNode {
+    //     return this.deriveFromPath(`m/44'/461'/0/0/1`);
+    // }
 
-    ///
-    // Gets EdDSA key pair
-    ///
-    eddsa.KeyPair getEd25519() {
-        const ed25519 = new eddsa('ed25519');
-        // createEd25519()
-        // const hdkey = HDKey.fromExtendedKey(HDNode.fromMnemonic(this.mnemonic).extendedKey);
-        const { key } = getMasterKeyFromSeed(ethers.utils.HDNode.mnemonicToSeed(this.mnemonic));
-        const keypair = ed25519.keyFromSecret(key);
-        return keypair;
-    }
-
-
-    ec.KeyPair getP256() {
-        const p256 = new ec('p256');
-        const keypair = p256.keyFromPrivate(HDNode.fromMnemonic(this.mnemonic).privateKey);
-        return keypair;
-    }
-
-    ec.KeyPair getES256K() {
-        const ES256k = new ec('secp256k1');
-        const keypair = ES256k.keyFromPrivate(HDNode.fromMnemonic(this.mnemonic).privateKey);
-        return keypair;
-    }
-
-    Object getBlsMasterKey() {
-        const masterKey = deriveKeyFromMnemonic(this.mnemonic)
-        return {
-            deriveValidatorKeys: (id: number) => deriveEth2ValidatorKeys(masterKey, id)
-        };
+    /**
+     * Gets EdDSA key pair
+     */
+    Future<dynamic> getEd25519() async {
+      // TODO: https://pub.dev/packages/ed25519_hd_key
+      var seed = bip39.mnemonicToSeed(mnemonic);
+      var kp = await ed25519.newKeyPairFromSeed(PrivateKey(seed));
+      return kp;
     }
 
 
-    Future<jwk.RSAKey> getRSA256Standalone({int len = 2048}) {
-        return JWK.createKey('RSA', len, {
-            alg: 'RS256',
-            use: 'sig'
-        });
-(); 
-        
-        }
-             // const ks: KeystoreDb5\Model = await this.db.get(this.id);
+    // getP256(): ec.KeyPair {
+    //     const p256 = new ec('p256');
+    //     const keypair = p256.keyFromPrivate(HDNode.fromMnemonic(this.mnemonic).privateKey);
+    //     return keypair;
+    // }
+
+   ECPair getES256K() {
+      var seed = bip39.mnemonicToSeed(mnemonic);
+      var kp =  ECPair.fromPrivateKey(Utf8Encoder().convert(HDWallet.fromSeed(seed).privKey));
+      return kp;
+    }
+
+    // getBlsMasterKey(): any {
+    //     const masterKey = deriveKeyFromMnemonic(this.mnemonic)
+    //     return {
+    //         deriveValidatorKeys: (id: number) => deriveEth2ValidatorKeys(masterKey, id)
+    //     };
+    // }
 
 
-        class Keystore {;
-        keystore.load'())
-}xzzzzz
+    // static getRSA256Standalone(len: number = 2048): Promise<JWK.RSAKey> {
+    //     return JWK.createKey('RSA', len, {
+    //         alg: 'RS256',
+    //         use: 'sig'
+    //     });
+    // }
 
 
-
+}

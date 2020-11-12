@@ -4,4 +4,12 @@ class KeystoreItem {
   dynamic ldJSON;
   String pem;
   String jwk;
+
+  KeystoreItem(String _publicKey, String _privateKey) {
+    publicKey = _publicKey;
+    privateKey = _privateKey;
+    ldJSON = '';
+    pem = '';
+    jwk = '';
+  }
 }
