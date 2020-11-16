@@ -1,39 +1,51 @@
 import 'package:sembast/sembast.dart';
 import 'package:wallet/src/keystore_item.dart';
+import 'package:wallet/src/wallet_base.dart';
 import 'package:x509/x509.dart';
+import 'package:sembast/utils/value_utils.dart';
+import 'package:sembast_sqflite/sembast_sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:path/path.dart';
 
 class KeyStore {
-  Database database;
-
   var DEFAULT_KEYSTORE_ITEMS = [
-    {'sepc256k1': {} as dynamic},
-    {'sepc256r1': {} as dynamic},
-    {'ed25519': {} as dynamic},
-    {'rsa1024': {} as dynamic},
-    {'rsa2048': {} as dynamic},
-  ] as List<Map<String, KeystoreItem>>;
+    {'algo': 'ed25519'},
+    {'algo': 'es256k'},
+    {'algo': 'sepc256r1'},
+    {'algo': 'rsa1024'},
+    {'algo': 'rsa2048'},
+  ];
 
-  set constructor(Database db) {
-    database = db;
-  }
+  // Use the main store for storing key values as String
+  var store = StoreRef<String, dynamic>.main();
 
-  void load() async {
-    // pre load default keystore items
-    var store = intMapStoreFactory.store();
+  KeyStore();
+
+  void enable() {}
+
+  void lock() {}
+
+  void load(Database database) async {
+    // Writing the data
     for (var item in DEFAULT_KEYSTORE_ITEMS) {
-      await store.add(database, item);
+      await store.record(item['algo']).put(database, {});
     }
   }
 
-  setKeyPair(String key, KeystoreItem kp) {
-    var store = intMapStoreFactory.store();
-    var key_item = store.record(key);
+  Future<dynamic> fetchKeyPair(Database database, String key) async {
+    // Reading the data
+    return await store.record(key).get(database);
+  }
 
-    key_item.update(database, kp);
+  void setKeyPair(Database database, String key, dynamic kp) async {
+    await store.record(key).update(database, kp);
+  }
+
+  void removeKeyPair(Database database, String key) async {
+    await store.record(key).delete(database);
   }
 
   // TODO
-  // finder
   // getter
   // setter
   // remove

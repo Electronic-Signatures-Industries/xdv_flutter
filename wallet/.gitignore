@@ -11,3 +11,7 @@ build/
 
 # Directory created by dartdoc
 doc/api/
+
+# wallet folders & files
+.idea
+xdv_wallet.db
