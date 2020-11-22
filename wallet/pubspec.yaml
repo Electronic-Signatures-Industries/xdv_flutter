@@ -19,6 +19,7 @@ dependencies:
   js: ^0.6.2
   cryptography: ^1.4.1
   restio: '0.8.0'  
+  pem: 1.0.1
   pointycastle: ^1.0.1
   ed25519_hd_key: ^1.0.1
   # x509csr: 1.0.2

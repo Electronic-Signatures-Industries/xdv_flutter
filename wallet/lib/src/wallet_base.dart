@@ -363,40 +363,4 @@ class Wallet {
   //     return this.deriveFromPath(`m/44'/461'/0/0/1`);
   // }
 
-  /**
-         * Gets EdDSA key pair
-         */
-  // Future<dynamic> getEd25519() async {
-  //   // TODO: https://pub.dev/packages/ed25519_hd_key
-  //   var seed = bip39.mnemonicToSeed(mnemonic);
-  //   var kp = await ed25519.newKeyPairFromSeed(PrivateKey(seed));
-  //   return kp;
-  // }
-
-  // getP256(): ec.KeyPair {
-  //     const p256 = new ec('p256');
-  //     const keypair = p256.keyFromPrivate(HDNode.fromMnemonic(this.mnemonic).privateKey);
-  //     return keypair;
-  // }
-
-  //  ECPair getES256K() {
-  //     var seed = bip39.mnemonicToSeed(mnemonic);
-  //     var kp =  ECPair.fromPrivateKey(Utf8Encoder().convert(HDWallet.fromSeed(seed).privKey));
-  //     return kp;
-  //   }
-
-  // getBlsMasterKey(): any {
-  //     const masterKey = deriveKeyFromMnemonic(this.mnemonic)
-  //     return {
-  //         deriveValidatorKeys: (id: number) => deriveEth2ValidatorKeys(masterKey, id)
-  //     };
-  // }
-
-  // static getRSA256Standalone(len: number = 2048): Promise<JWK.RSAKey> {
-  //     return JWK.createKey('RSA', len, {
-  //         alg: 'RS256',
-  //         use: 'sig'
-  //     });
-  // }
-
 }
