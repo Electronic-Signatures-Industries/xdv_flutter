@@ -11,6 +11,8 @@ class KeyStore {
   var DEFAULT_KEYSTORE_ITEMS = [
     {'algo': 'ed25519'},
     {'algo': 'es256k'},
+    {'algo': 'p384'},
+    {'algo': 'p256'},
     {'algo': 'sepc256r1'},
     {'algo': 'rsa1024'},
     {'algo': 'rsa2048'},

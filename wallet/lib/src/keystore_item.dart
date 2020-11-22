@@ -1,15 +1,14 @@
-class KeystoreItem {
-  String privateKey;
-  String publicKey;
+class KeyPairContainer {
+  dynamic privateKey;
+  dynamic publicKey;
   dynamic ldJSON;
   String pem;
-  String jwk;
+  Map<String, dynamic> jwk;
 
-  KeystoreItem(String _publicKey, String _privateKey) {
+  KeyPairContainer(dynamic _publicKey, dynamic _privateKey) {
     publicKey = _publicKey;
     privateKey = _privateKey;
     ldJSON = '';
     pem = '';
-    jwk = '';
   }
 }

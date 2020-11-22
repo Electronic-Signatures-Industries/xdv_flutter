@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'dart:convert';
 import 'package:jose/jose.dart'; // jwt
+import 'package:pointycastle/random/fortuna_random.dart';
 
 import 'package:sembast/sembast.dart';
 import 'package:sembast_sqflite/sembast_sqflite.dart';
@@ -58,46 +59,6 @@ abstract class KS {
   Future<KeystoreItem> getKeyPair(String key);
 }
 
-// mixin AndroidKeyStore implements KeyStore, HDWallet {
-// }
-
-// mixin SigningKeypairTypes implements List {
-// }
-
-// class WalletKeyStore implements KeyStore{
-//   @override
-//   enable() {
-//     // TODO: implement enable
-//     throw UnimplementedError();
-//   }
-
-//   @override
-//   find() {
-//     // TODO: implement find
-//     throw UnimplementedError();
-//   }
-
-//   @override
-//   lock() {
-//     // TODO: implement lock
-//     throw UnimplementedError();
-//   }
-
-//   @override
-//   remove() {
-//     // TODO: implement remove
-//     throw UnimplementedError();
-//   }
-
-//   @override
-//   set() {
-//     // TODO: implement set
-//     throw UnimplementedError();
-//   }
-
-// }
-
-// type FilecoinSignTypes = 'filecoin' | 'lotus';
 class Wallet {
   String id;
 
@@ -187,8 +148,8 @@ class Wallet {
   }
 
   Future<int> create(String password, String mnemonic) async {
-    var id = 'addrandom';
-    // const id = Buffer.from(ethers.utils.randomBytes(100)).toString('base64');
+    var random = FortunaRandom();
+    var id = random.nextUint32();
 
     // Load From Existing mnemonic
     if (mnemonic.isNotEmpty) {
@@ -203,71 +164,28 @@ class Wallet {
     var algo = 'ed25519';
     var kp = await AlgorithmFactory.create(algo, mnemonic);
     await keystore.setKeyPair(db, algo, kp);
-    var key = await keystore.fetchKeyPair(db, algo);
-    print('fetched $algo: $key');
-    await keystore.removeKeyPair(db, algo);
-    key = await keystore.fetchKeyPair(db, algo);
-    print('removed $algo: $key');
 
-    // ED25519
+    // ES256k
     algo = 'es256k';
     kp = await AlgorithmFactory.create(algo, mnemonic);
     await keystore.setKeyPair(db, algo, kp);
-    key = await keystore.fetchKeyPair(db, algo);
-    print('fetched $algo: $key');
-    await keystore.removeKeyPair(db, algo);
-    key = await keystore.fetchKeyPair(db, algo);
-    print('removed $algo: $key');
-
-    return 1;
 
     // P256
-    // secp256r1
-    // p384
-    /*kp = this.getP256();
-                  keystores.P256 = kp.getPrivate('hex');
-                  keyExports.P256 = await KeyConvert.getP256(kp);
-                  keyExports.P256.ldJsonPublic = await KeyConvert.createLinkedDataJsonFormat(
-                      LDCryptoTypes.JWK,
-                      // @ts-ignore
-                      { publicJwk: JSON.parse(keyExports.P256.ldSuite.publicKeyJwk) },
-                      false
-                  );
-                  // RSA
-                  kp = await Wallet.getRSA256Standalone();
-                  keystores.RSA = kp.toJSON(true);
-                  keyExports.RSA = await KeyConvert.getRSA(kp);
-          
-                  const keystoreMnemonicAsString = await this.ethersWallet.encrypt(password);
-          
-                  const model: KeystoreDbModel = {
-                      _id: id,
-                      keypairs: keystores,
-                      keystoreSeed: keystoreMnemonicAsString,
-                      mnemonic: mnemonic,
-                      keypairExports: keyExports,
-          
-                  }
-          
-                  await this.db.crypto(password);
-                  await this.db.put(model);
-          
-                  this.id = id;*/
+    algo = 'p256';
+    kp = await AlgorithmFactory.create(algo, mnemonic);
+    await keystore.setKeyPair(db, algo, kp);
 
-    // Query like
-    // Blockchain - query its page
-    // with dot separator like :00
+    // P384
+    algo = 'p384';
+    kp = await AlgorithmFactory.create(algo, mnemonic);
+    await keystore.setKeyPair(db, algo, kp);
 
-    // if (algorithm === 'ED25519') {
-    //     const kp = new eddsa('ed25519');
-    //     return kp.keyFromSecret(ks.keypairs.ED25519) as eddsa.KeyPair;
-    // } else if (algorithm === 'P256') {
-    //     const kp = new ec('p256');
-    //     return kp.keyFromPrivate(ks.keypairs.P256) as ec.KeyPair;
-    // } else if (algorithm === 'ES256K') {
-    //     const kp = new ec('secp256k1');
-    //     return kp.keyFromPrivate(ks.keypairs.ES256K) as ec.KeyPair;
-    // }
+    // RSA2048
+    algo = 'rsa2048';
+    kp = await AlgorithmFactory.create(algo, mnemonic);
+    await keystore.setKeyPair(db, algo, kp);
+
+    return true;
   }
 
   getPrivateKeyExports(AlgorithmTypeString algorithm) {
